@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   hummingbot:
     image: hummingbot/hummingbot:latest
@@ -18,19 +16,18 @@ services:
     network_mode: host
     tty: true
     stdin_open: true
-    # Command to auto-start the script
-    command: "start --script scripts/antigravity_loader.py"
+    # Command to auto-start the script using the correct conda environment
+    command: /bin/bash -lc "conda activate hummingbot && python bin/hummingbot.py start --script /conf/scripts/antigravity_loader.py"
 
   dashboard:
     image: hummingbot/dashboard:latest
     container_name: antigravity-dashboard
-    ports:
-      - "8501:8501"
+    # Using host network to allow easier connection to local resources if needed
+    network_mode: host
     volumes:
       - ./data:/data
     environment:
       - AUTH_SYSTEM_ENABLED=False
     restart: always
 
-# Note: Dashboard connects to HB via shared volume (sqlite DB) or Broker.
-# For V2, Dashboard might need specific configuration to read the sqlite DB created by StrategyV2.
+# Note: Dashboard connects to HB via shared volume (sqlite DB).
