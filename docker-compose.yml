@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  hummingbot:
+    image: hummingbot/hummingbot:latest
+    container_name: antigravity-engine
+    volumes:
+      - ./conf:/conf
+      - ./controllers:/conf/controllers
+      - ./scripts:/conf/scripts
+      - ./logs:/logs
+      - ./data:/data
+    environment:
+      - CONFIG_PASSWORD=a
+      - BYBIT_API_KEY=${BYBIT_API_KEY}
+      - BYBIT_API_SECRET=${BYBIT_API_SECRET}
+      - LLM_API_KEY=${LLM_API_KEY}
+    network_mode: host
+    tty: true
+    stdin_open: true
+    # Command to auto-start the script
+    command: "start --script scripts/antigravity_loader.py"
+
+  dashboard:
+    image: hummingbot/dashboard:latest
+    container_name: antigravity-dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/data
+    environment:
+      - AUTH_SYSTEM_ENABLED=False
+    restart: always
+
+# Note: Dashboard connects to HB via shared volume (sqlite DB) or Broker.
+# For V2, Dashboard might need specific configuration to read the sqlite DB created by StrategyV2.
